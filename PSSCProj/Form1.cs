@@ -3,18 +3,172 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Drawing;
+using System.IO;
 using System.Linq;
+using System.Runtime.Serialization;
+using System.Runtime.Serialization.Formatters.Binary;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace PSSCProj
 {
+
     public partial class Form1 : Form
     {
+    List<Facultate> Facultati = new List<Facultate>();
         public Form1()
         {
             InitializeComponent();
         }
+
+        private void Form1_Load(object sender, EventArgs e)
+        {
+
+        }
+
+        private void groupBox1_Enter(object sender, EventArgs e)
+        {
+
+        }
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+            
+        }
+
+        private void groupBox2_Enter(object sender, EventArgs e)
+        {
+
+        }
+
+        private void button2_Click(object sender, EventArgs e)
+        {
+            Facultati.Add(new Facultate(textBox4.Text));
+            DisplayFac(label1);
+        }
+        public void DisplayFac(Label label1)
+        {
+            label1.Text = "";
+            foreach (Facultate f in Facultati)
+            {
+                label1.Text += f.nume_fac + "\n";
+
+            }
+        }
+
+        private void button3_Click(object sender, EventArgs e)
+        {
+            IFormatter formatter = new BinaryFormatter();
+            Stream stream = new FileStream("Data.bin", FileMode.Create, FileAccess.Write, FileShare.None);
+            try
+            {
+                formatter.Serialize(stream, Facultati);
+
+            }
+            catch (SerializationException ex)
+            {
+                label2.Text = ex.ToString();
+            }
+            stream.Close();
+        }
+
+        
     }
+    public interface IEntityListOfObjects 
+    {
+      void Display(Label label1);
+   }
+    public class Facultate : IEntityListOfObjects
+    {
+
+        public string nume_fac { set; get; }
+        List<Studenti> studenti = new List<Studenti>();
+        public Facultate(string nume)
+        {
+            nume_fac = nume;
+        }
+        public void Display(Label label1)
+        {
+            label1.Text = "";
+            foreach (Studenti s in studenti)
+            {
+                label1.Text += s.nume_stud + "\n";
+
+            }
+        }
+    }
+    public class Studenti
+    {
+
+        public string nume_stud { set; get; }
+        public Catalog catalog { set; get; }
+        public Studenti(string nume_sutd)
+        {
+            this.nume_stud = nume_stud;
+
+        }
+
+
+    }
+    public class Profesori
+    {
+        public string nume_profi { set; get; }
+
+        public Profesori(string nume_profi)
+        {
+            this.nume_profi = nume_profi;
+        }
+
+    }
+    public class Catalog:IEntityListOfObjects
+    {
+        public List<Materii> mat = new List<Materii>();
+        public double med_gen { set; get; }
+        public void CalculMedieGen()
+        {
+            int k = 0;
+            double med = 0;
+            foreach (Materii i in mat)
+            {
+                med += i.medie;
+                k++;
+            }
+            med_gen = med / k;
+        }
+
+       public void Display(Label label1)
+        {
+            label1.Text = "";
+            foreach (Materii m in mat)
+            {
+                label1.Text += m.nume_mat + "\n";
+
+            }
+        }
+    }
+    public class Materii
+    {
+        public List<int> note = new List<int>();
+        public Profesori prof { set; get; }
+        public double medie { set; get; }
+        public string nume_mat { set; get; }
+        public Materii(string nume_mat, Profesori prof)
+        {
+            this.nume_mat = nume_mat;
+            this.prof = prof;
+        }
+        public void CalculMedie()
+        {
+            int count = 0;
+            double medie = 0;
+            foreach (int nota in note)
+            {
+                medie += nota;
+                count++;
+            }
+            this.medie = medie / count;
+        }
+    }
+
 }
